@@ -1,13 +1,13 @@
-const vscode = require('vscode');
+const ex = require('./extension'); 
 const fs = require('fs');
-const config = require(`${vscode.workspace.workspaceFolders[0].uri.fsPath}/bc.json`) || null;
-const extension = config.typescript ? ['tsx', 'ts'] : ['jsx', 'js'];
+
+
 
 /**
  * MAIN
  **/ 
-const createMainFiles = (folder, name) => {
-
+const createMainFiles = (folder, name, config) => {
+    const extension = config.typescript ? ['tsx', 'ts'] : ['jsx', 'js'];
 	const mainData = `import React from 'react';
 ${config.typescript ? `import { ${name}Props } from './types';` : ''};
 import { ${name}Div } from './styles/${name}Styles';
@@ -42,7 +42,8 @@ const typesData = `export interface ${name}Props {
 /**
  * STYLES
  **/
-const createStyleSection = (folder, name) => {
+const createStyleSection = (folder, name, config) => {
+    const extension = config.typescript ? ['tsx', 'ts'] : ['jsx', 'js'];
     const stylesData = `import styled from 'styled-components';
     ${config.typescript ? `import { ${name}Props } from '../types';` : ''};
     
@@ -60,8 +61,8 @@ const createStyleSection = (folder, name) => {
  * TESTS
  */
 
-const createTestSection = (folder, name) => {
-
+const createTestSection = (folder, name, config) => {
+    const extension = config.typescript ? ['tsx', 'ts'] : ['jsx', 'js'];
 	const testData = `import { mount, shallow } from 'enzyme';
 import React from 'react';
 import ${name} from '../${name}';
@@ -82,8 +83,8 @@ describe('${name}', () => {
  * STORIES
  */
 
-const createStorySection = (folder, name) => {
-	
+const createStorySection = (folder, name, config) => {
+    const extension = config.typescript ? ['tsx', 'ts'] : ['jsx', 'js'];
     const storyData = `import React from 'react';
     import { Story, Meta } from '@storybook/react';
     

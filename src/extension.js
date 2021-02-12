@@ -2,9 +2,15 @@
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
 const fs = require('fs');
+const utils = require('./utils');
+const defaultConfig = require('./defaults');
 const path = require('path');
+if (!fs.existsSync(`${vscode.workspace.workspaceFolders[0].uri.fsPath}/boxedConfig.json`)) {
+    fs.writeFileSync(`${vscode.workspace.workspaceFolders[0].uri.fsPath}/boxedConfig.json`, JSON.stringify(defaultConfig))
+}
+const configPath = `${vscode.workspace.workspaceFolders[0].uri.fsPath}/boxedConfig.json`;
+
 const sections = require('./sections');
-const config = require(`${vscode.workspace.workspaceFolders[0].uri.fsPath}/bc.json`) || null;
 
 const {createMainFiles, createStorySection, createStyleSection, createTestSection} = sections;
 // this method is called when your extension is activated
@@ -19,6 +25,8 @@ function activate(context) {
 	// Now provide the implementation of the command with  registerCommand
 	// The commandId parameter must match the command field in package.json
 	let createBox = vscode.commands.registerCommand('boxed-components.createBox', async () => {
+		delete require.cache[configPath];
+		const config = require(configPath);
 		const projectRoot = vscode.workspace.workspaceFolders[0].uri.fsPath;
 		const userPath = config ? config.hasOwnProperty('path') && path.normalize(config.path) : '';
 
@@ -41,12 +49,23 @@ function activate(context) {
 
 		const mainComponentFolder = `${projectRoot}/${userPath}/${componentName}`;
 
-		// Parent Component Folder
-		fs.mkdirSync(mainComponentFolder);
-		createMainFiles(mainComponentFolder, componentName);
-		createStyleSection(mainComponentFolder, componentName);
-		createTestSection(mainComponentFolder, componentName);
-		createStorySection(mainComponentFolder, componentName);
+		if (config.template)
+		{
+			utils.copyDir(`${projectRoot}/${config.template}/__box__`, `${projectRoot}/${userPath}/${componentName}`, componentName);
+		}
+		else {
+			fs.mkdirSync(mainComponentFolder, config);
+			createMainFiles(mainComponentFolder, componentName, config);
+			createStyleSection(mainComponentFolder, componentName, config);
+			createTestSection(mainComponentFolder, componentName, config);
+			createStorySection(mainComponentFolder, componentName, config);
+		}
+
+		
+		
+		
+		
+		
 		
 
 		vscode.window.showInformationMessage(`Created ${componentName} successfully! 👋`, {
@@ -62,5 +81,5 @@ function deactivate() {}
 
 module.exports = {
 	activate,
-	deactivate
+	deactivate,
 }
