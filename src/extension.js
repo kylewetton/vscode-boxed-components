@@ -5,14 +5,10 @@ const fs = require('fs');
 const utils = require('./utils');
 const defaultConfig = require('./defaults');
 const path = require('path');
-if (!fs.existsSync(`${vscode.workspace.workspaceFolders[0].uri.fsPath}/boxedConfig.json`)) {
-    fs.writeFileSync(`${vscode.workspace.workspaceFolders[0].uri.fsPath}/boxedConfig.json`, JSON.stringify(defaultConfig))
-}
 const configPath = `${vscode.workspace.workspaceFolders[0].uri.fsPath}/boxedConfig.json`;
 
 const createChosenBox = async (config, template) => {
 	const projectRoot = vscode.workspace.workspaceFolders[0].uri.fsPath;
-	const userPath = config ? config.hasOwnProperty('path') && path.normalize(config.path) : '';
 
 	const componentName = await vscode.window.showInputBox({
 		placeholder: 'Name your component...',
@@ -23,7 +19,7 @@ const createChosenBox = async (config, template) => {
 				return `You have to give it a name 😂`;
 			}
 
-			if (fs.existsSync(`${projectRoot}/${userPath}/${text}`)) {
+			if (fs.existsSync(`${projectRoot}/${config['templates'][template]['dest']}/${text}`)) {
 				return `${text} already exists? 😐`;
 			}
 
@@ -33,15 +29,20 @@ const createChosenBox = async (config, template) => {
 
 	if (config.templates)
 	{
+		if (!componentName)
+		{
+			vscode.window.showErrorMessage(`Something went wrong here, the component name you entered didn't reach me.`);
+			return false;
+		}
+			
 		utils.copyDir(`${projectRoot}/${config['templates'][template]['src']}`,
 			`${projectRoot}/${config['templates'][template]['dest']}/${componentName}`,
 			componentName);
+			vscode.window.showInformationMessage(`Created *${componentName} ${template}* successfully! 👋`);
 	}
 	else {
-		vscode.window.showErrorMessage(`Couldn't find any templates in boxedConfig.js`);
+		vscode.window.showErrorMessage(`Couldn't find any templates in boxedConfig.json`);
 	}
-
-	vscode.window.showInformationMessage(`Created ${componentName} successfully! 👋`);
 }
 
 /**
@@ -50,11 +51,20 @@ const createChosenBox = async (config, template) => {
 function activate(context) {
 
 	let createBox = vscode.commands.registerCommand('boxed-components.createBox', () => {
-		let template = null;
+		
 		delete require.cache[configPath];
+
+		if (!fs.existsSync(configPath)) {
+			fs.writeFileSync(configPath, JSON.stringify(defaultConfig));
+			vscode.window.showInformationMessage(`Created a blank boxedConfig.json file, add your template information and try again.`);
+			vscode.window.showErrorMessage(`Couldn't find boxedConfig.json file`);
+			return false;
+		}
+
 		const config = require(configPath);
 
 		const quickPick = vscode.window.createQuickPick();
+		quickPick.title = 'Select one of your templates';
 		quickPick.items = Object.keys(config.templates).map(label => ({ label }));
 		quickPick.onDidChangeSelection(selection => {
 			if (selection[0]) {
