@@ -1,65 +1,67 @@
 # boxed-components README
 
-This is the README for your extension "boxed-components". After writing up a brief description, we recommend including the following sections.
+Boxed Components lets you create component templates called 'boxes'. These are full folder snippets that you can spawn instances of, set a replacement string in file names and file content to swap out when it's spawned, making scaffolding a new named component a breeze. You can have as many templates as you want. Stylish.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+You create templates that have no name, instead they're called \_\_box_\_ wherever the name will be injected.
 
-For example if there is an image subfolder under your extension project workspace:
+![A component template](images/example.png)
 
-\!\[feature X\]\(images/feature-x.png\)
+Here I'm creating a new component called Card. In my template, anywhere I want the name of the component to be (in this case the string 'Card', I write \__box__\). This can be done in file names and file content.
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+![Spawning a new boxed component](images/anim.gif)
 
-## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+## Instructions
 
-## Extension Settings
+1. Create a templates folder, and inside this folder author a new component, including everything your component file structure usually needs. a Styles folder, an index.tsx, a ComponentName.tsx, a \_\_tests\_\_ folder, etc. The templates folder isn't critical, you may choose to have a template inside the src/components folder for instance. Your template src path is set in the config file (see 4.).
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+2. This component should be in essence a \_\_box\_\_.tsx component. Everywhere inside the file, replace where the component name should go with the string '\_\_box\_\_'.
 
-For example:
+Example: `__box__.tsx` looks like this.
 
-This extension contributes the following settings:
+    import React from 'react';
+    import { __box__Props } from './types';
+    import '../styles';
+    
+    const __box__:React.FC<__box__Props> = () => {
+    	return <div>This is the __box__ component.</div>
+    }
+    
+    export default __box__;
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+and the `./types` folder that is being imported looks like this
 
-## Known Issues
+    export interface __box__Props {
+    
+    }
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+The \_\_box\_\_ string will work everywhere, for instance `__box__.scss`.
+
+3. In order to spawn a new component, you will need a file in your root directory called `boxedConfig.json`.
+
+In this json file you set your templates, including `src` and `dest` for each.
+
+    {
+        "templates": {
+            "component" : {
+                "src" : "templates/component",
+                "dest" : "src/components"
+            },
+            "feature" : {
+                "src" : "templates/feature",
+                "dest" : "src/store/features"
+            }
+        }
+    }
+
+
+4. Finally, use this extension whenever you need to spawn a new boxed component by `CMD+Shift+P` and searching for __Boxed Components__.
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
-
 ### 1.0.0
 
-Initial release of ...
+Initial release of Boxed Components
 
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
