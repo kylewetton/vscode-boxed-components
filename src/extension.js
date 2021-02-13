@@ -10,67 +10,60 @@ if (!fs.existsSync(`${vscode.workspace.workspaceFolders[0].uri.fsPath}/boxedConf
 }
 const configPath = `${vscode.workspace.workspaceFolders[0].uri.fsPath}/boxedConfig.json`;
 
-const sections = require('./sections');
+const createChosenBox = async (config, template) => {
+	const projectRoot = vscode.workspace.workspaceFolders[0].uri.fsPath;
+	const userPath = config ? config.hasOwnProperty('path') && path.normalize(config.path) : '';
 
-const {createMainFiles, createStorySection, createStyleSection, createTestSection} = sections;
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
+	const componentName = await vscode.window.showInputBox({
+		placeholder: 'Name your component...',
+		prompt: 'Box it up',
+		validateInput: text => {
+
+			if (!text) {
+				return `You have to give it a name 😂`;
+			}
+
+			if (fs.existsSync(`${projectRoot}/${userPath}/${text}`)) {
+				return `${text} already exists? 😐`;
+			}
+
+			return null;
+		}
+	});
+
+	if (config.templates)
+	{
+		utils.copyDir(`${projectRoot}/${config['templates'][template]['src']}`,
+			`${projectRoot}/${config['templates'][template]['dest']}/${componentName}`,
+			componentName);
+	}
+	else {
+		vscode.window.showErrorMessage(`Couldn't find any templates in boxedConfig.js`);
+	}
+
+	vscode.window.showInformationMessage(`Created ${componentName} successfully! 👋`);
+}
 
 /**
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with  registerCommand
-	// The commandId parameter must match the command field in package.json
-	let createBox = vscode.commands.registerCommand('boxed-components.createBox', async () => {
+	let createBox = vscode.commands.registerCommand('boxed-components.createBox', () => {
+		let template = null;
 		delete require.cache[configPath];
 		const config = require(configPath);
-		const projectRoot = vscode.workspace.workspaceFolders[0].uri.fsPath;
-		const userPath = config ? config.hasOwnProperty('path') && path.normalize(config.path) : '';
 
-		const componentName = await vscode.window.showInputBox({
-			placeholder: 'Name your component...',
-			prompt: 'Box it up',
-			validateInput: text => {
-
-				if (!text) {
-					return `You have to give it a name 😂`;
-				}
-
-				if (fs.existsSync(`${projectRoot}/${userPath}/${text}`)) {
-					return `${text} already exists? 😐`;
-				}
-
-				return null;
+		const quickPick = vscode.window.createQuickPick();
+		quickPick.items = Object.keys(config.templates).map(label => ({ label }));
+		quickPick.onDidChangeSelection(selection => {
+			if (selection[0]) {
+				createChosenBox(config, selection[0].label);
 			}
 		});
+		quickPick.onDidHide(() => quickPick.dispose());
+		quickPick.show();
 
-		const mainComponentFolder = `${projectRoot}/${userPath}/${componentName}`;
-
-		if (config.template)
-		{
-			utils.copyDir(`${projectRoot}/${config.template}/__box__`, `${projectRoot}/${userPath}/${componentName}`, componentName);
-		}
-		else {
-			fs.mkdirSync(mainComponentFolder, config);
-			createMainFiles(mainComponentFolder, componentName, config);
-			createStyleSection(mainComponentFolder, componentName, config);
-			createTestSection(mainComponentFolder, componentName, config);
-			createStorySection(mainComponentFolder, componentName, config);
-		}
-
-		
-		
-		
-		
-		
-		
-
-		vscode.window.showInformationMessage(`Created ${componentName} successfully! 👋`, {
-
-		});
 	});
 
 	context.subscriptions.push(createBox);

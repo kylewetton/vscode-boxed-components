@@ -1,8 +1,9 @@
 const fs = require('fs');
 const path = require('path');
+const shell = require('shelljs');
+
 
 const findReplace = (file, componentName) => {
-    var fs = require('fs');
     const newPath = file.replace(/__box__/g, componentName);
     fs.renameSync(file, newPath);
     fs.readFile(newPath, 'utf8', function (err,data) {
@@ -35,7 +36,7 @@ const copy = function(src, dest) {
 };
 
 const copyDir = function(src, dest, name) {
-	mkdir(dest);
+    shell.mkdir('-p', dest);
 	var files = fs.readdirSync(src);
 	for(var i = 0; i < files.length; i++) {
 		var current = fs.lstatSync(path.join(src, files[i]));
