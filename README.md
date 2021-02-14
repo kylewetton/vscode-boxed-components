@@ -2,20 +2,9 @@
 
 Boxed Components lets you create component templates called 'boxes'. These are full folder snippets that you can spawn instances of, set a replacement string in file names and file content to swap out when it's spawned, making scaffolding a new named component a breeze. You can have as many templates as you want. Stylish.
 
-## Features
-
-You create templates that have no name, instead they're called \_\_box_\_ wherever the name will be injected.
-
-![A component template](images/example.png)
-
-Here I'm creating a new component called Card. In my template, anywhere I want the name of the component to be (in this case the string 'Card', I write \__box__\). This can be done in file names and file content.
-
-![Spawning a new boxed component](images/anim.gif)
-
-
 ## Instructions
 
-1. Create a templates folder, and inside this folder author a new component, including everything your component file structure usually needs. a Styles folder, an index.tsx, a ComponentName.tsx, a \_\_tests\_\_ folder, etc. The templates folder isn't critical, you may choose to have a template inside the src/components folder for instance. Your template src path is set in the config file (see 4.).
+1. Create a standard component somewhere you'd like to keep the template, for instance 'templates/component' or 'src/components/template', and inside this folder author a new component, including everything your component file structure usually needs. A Styles folder, an index.tsx, a ComponentName.tsx, a \_\_tests\_\_ folder with a ComponentName.test.tsx file, etc.
 
 2. This component should be in essence a \_\_box\_\_.tsx component. Everywhere inside the file, replace where the component name should go with the string '\_\_box\_\_'.
 
@@ -39,12 +28,10 @@ and the `./types` folder that is being imported looks like this
 
 The \_\_box\_\_ string will work everywhere, for instance `__box__.scss`.
 
-3. In order to spawn a new component, you will need a file in your root directory called `boxedConfig.json`.
-
-In this json file you set your templates, including `src` and `dest` for each.
+3. In order to spawn a new component, you will need some .vscode settings. Inside `.vscode/settings.json`, you'd create your setting like so
 
     {
-        "templates": {
+        "boxed-components.useTemplates": {
             "component" : {
                 "src" : "templates/component",
                 "dest" : "src/components"
@@ -52,6 +39,10 @@ In this json file you set your templates, including `src` and `dest` for each.
             "feature" : {
                 "src" : "templates/feature",
                 "dest" : "src/store/features"
+            },
+            "page" : {
+                "src" "templates/html",
+                "dest" : "src/pages"
             }
         }
     }
