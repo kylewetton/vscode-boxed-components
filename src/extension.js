@@ -19,7 +19,7 @@ const createChosenBox = async (config, template) => {
 				return `You have to give it a name 😂`;
 			}
 
-			if (fs.existsSync(`${destURL}/${text}`)) {
+			if (fs.existsSync(`${destURI}/${text}`)) {
 				return `${text} already exists? 😐`;
 			}
 
@@ -29,6 +29,7 @@ const createChosenBox = async (config, template) => {
 
 	if (config)
 	{
+
 		if (!componentName)
 		{
 			vscode.window.showErrorMessage(`Something went wrong here, the component name you entered didn't reach me.`);
@@ -50,7 +51,7 @@ const createChosenBox = async (config, template) => {
  */
 function activate(context) {
 
-	let createBox = vscode.commands.registerCommand('boxed-components.createBox', () => {
+	const createBox = vscode.commands.registerCommand('boxed-components.createBox', () => {
 
 		const quickPick = vscode.window.createQuickPick();
 		quickPick.title = 'Select one of your templates';
