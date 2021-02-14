@@ -30,6 +30,9 @@ The \_\_box\_\_ string will work everywhere, for instance `__box__.scss`.
 
 3. In order to spawn a new component, you will need some .vscode settings. Inside `.vscode/settings.json`, you'd create your setting like so
 
+:
+
+
     {
         "boxed-components.useTemplates": {
             "component" : {

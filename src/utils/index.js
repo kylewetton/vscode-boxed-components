@@ -12,9 +12,7 @@ const findReplace = (file, componentName) => {
         }
         var result = data.replace(/__box__/g, componentName);
 
-        fs.writeFile(newPath, result, 'utf8', function (err) {
-            if (err) return console.log(err);
-        });
+        fs.writeFileSync(newPath, result, 'utf8');
     });
 }
 
@@ -25,22 +23,24 @@ const copy = function(src, dest) {
 };
 
 const copyDir = function(src, dest, name) {
-    shell.mkdir('-p', dest);
-	var files = fs.readdirSync(src);
-	for(var i = 0; i < files.length; i++) {
-		var current = fs.lstatSync(path.join(src, files[i]));
-		if(current.isDirectory()) {
-			copyDir(path.join(src, files[i]), path.join(dest, files[i]), name);
+	return new Promise((res, rej) => {
+		shell.mkdir('-p', dest);
+		var files = fs.readdirSync(src);
+			for (var i = 0; i < files.length; i++) {
+			var current = fs.lstatSync(path.join(src, files[i]));
+			if(current.isDirectory()) {
+				copyDir(path.join(src, files[i]), path.join(dest, files[i]), name);
+			}
+        	else if(current.isSymbolicLink()) {
+				var symlink = fs.readlinkSync(path.join(src, files[i]));
+				fs.symlinkSync(symlink, path.join(dest, files[i]));
+			}
+        	else {
+				copy(path.join(src, files[i]), path.join(dest, files[i]));
+			}
 		}
-        else if(current.isSymbolicLink()) {
-			var symlink = fs.readlinkSync(path.join(src, files[i]));
-			fs.symlinkSync(symlink, path.join(dest, files[i]));
-		}
-        else {
-			copy(path.join(src, files[i]), path.join(dest, files[i]));
-		}
-	}
-    rename(dest, name);
+		res(true);
+	});
 };
 
 const rename = function(src, name) {
@@ -50,10 +50,6 @@ const rename = function(src, name) {
 		if(current.isDirectory()) {
 			rename(path.join(src, files[i]), name);
 		}
-        // else if(current.isSymbolicLink()) {
-		// 	var symlink = fs.readlinkSync(path.join(src, files[i]));
-		// 	fs.symlinkSync(symlink, path.join(dest, files[i]));
-		// }
         else {
 			findReplace(path.join(src, files[i]), name);
 		}
@@ -61,5 +57,6 @@ const rename = function(src, name) {
 };
 
 module.exports = {
-    copyDir
+    copyDir,
+	rename
 }

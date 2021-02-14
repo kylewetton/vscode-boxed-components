@@ -6,6 +6,10 @@ const utils = require('./utils');
 const path = require('path');
 
 const createChosenBox = async (config, template) => {
+	/**
+	 * TODO: This appears to only point to the first folder in the workspace.
+	 * Personally never really have more than one project open in one workspace at a time
+	 * */ 
 	const projectRoot = vscode.workspace.workspaceFolders[0].uri.fsPath;
 	const destURI = `${projectRoot}/${config[template]['dest']}`;
 	const srcURI = `${projectRoot}/${config[template]['src']}`;
@@ -38,7 +42,13 @@ const createChosenBox = async (config, template) => {
 			
 		utils.copyDir(srcURI,
 			`${destURI}/${componentName}`,
-			componentName);
+			componentName).then(() => {
+				utils.rename(`${destURI}/${componentName}`,
+				componentName);
+			});
+
+
+
 			vscode.window.showInformationMessage(`Created ${componentName} ${template} successfully! 👋`);
 	}
 	else {
