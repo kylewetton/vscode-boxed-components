@@ -42,7 +42,7 @@ const createChosenBox = async (config, template) => {
 			vscode.window.showInformationMessage(`Created ${componentName} ${template} successfully! 👋`);
 	}
 	else {
-		vscode.window.showErrorMessage(`Couldn't find any templates in boxedConfig.json`);
+		vscode.window.showErrorMessage(`Couldn't find any templates in settings.json`);
 	}
 }
 

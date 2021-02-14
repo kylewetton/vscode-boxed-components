@@ -1,6 +1,7 @@
 {
 	"name": "boxed-components",
 	"displayName": "Boxed Components",
+	"publisher": "kylewetton",
 	"description": "Create a component folder structure including Storybook and styling",
 	"repository": { "type": "git", "url": "https://github.com/kylewetton/vscode-boxed-components.git" },
 	"version": "0.0.1",
