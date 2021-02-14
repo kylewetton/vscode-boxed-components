@@ -5,29 +5,22 @@ const shell = require('shelljs');
 
 const findReplace = (file, componentName) => {
     const newPath = file.replace(/__box__/g, componentName);
-    fs.renameSync(file, newPath);
-    fs.readFile(newPath, 'utf8', function (err,data) {
-        if (err) {
-            return console.log(err);
-        }
-        var result = data.replace(/__box__/g, componentName);
-
-        fs.writeFile(newPath, result, 'utf8', function (err) {
-            if (err) return console.log(err);
-        });
-    });
+    fs.rename(file, newPath, () => {
+		fs.readFile(newPath, 'utf8', async (err,data) => {
+		
+			if (err)
+			{
+				console.log(err);
+				return false;
+			} 
+			var result = await data.replace(/__box__/g, componentName);
+	
+			fs.writeFile(newPath, result, 'utf8', function (err) {
+				if (err) return console.log(err);
+			});
+		});
+	});
 }
-
-const mkdir = function(dir) {
-	// making directory without exception if exists
-	try {
-		fs.mkdirSync(dir, 0755);
-	} catch(e) {
-		if(e.code != "EEXIST") {
-			throw e;
-		}
-	}
-};
 
 const copy = function(src, dest) {
 	var oldFile = fs.createReadStream(src);
@@ -51,7 +44,6 @@ const copyDir = function(src, dest, name) {
 			copy(path.join(src, files[i]), path.join(dest, files[i]));
 		}
 	}
-    rename(dest, name);
 };
 
 const rename = function(src, name) {
@@ -61,10 +53,6 @@ const rename = function(src, name) {
 		if(current.isDirectory()) {
 			rename(path.join(src, files[i]), name);
 		}
-        // else if(current.isSymbolicLink()) {
-		// 	var symlink = fs.readlinkSync(path.join(src, files[i]));
-		// 	fs.symlinkSync(symlink, path.join(dest, files[i]));
-		// }
         else {
 			findReplace(path.join(src, files[i]), name);
 		}
@@ -72,5 +60,6 @@ const rename = function(src, name) {
 };
 
 module.exports = {
-    copyDir
+    copyDir,
+	rename
 }

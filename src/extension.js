@@ -4,8 +4,7 @@ const vscode = require('vscode');
 const fs = require('fs');
 const utils = require('./utils');
 const defaultConfig = require('./defaults');
-const path = require('path');
-const configPath = `${vscode.workspace.workspaceFolders[0].uri.fsPath}/boxedConfig.json`;
+
 
 const createChosenBox = async (config, template) => {
 	const projectRoot = vscode.workspace.workspaceFolders[0].uri.fsPath;
@@ -38,6 +37,10 @@ const createChosenBox = async (config, template) => {
 		utils.copyDir(`${projectRoot}/${config['templates'][template]['src']}`,
 			`${projectRoot}/${config['templates'][template]['dest']}/${componentName}`,
 			componentName);
+		utils.rename(`${projectRoot}/${config['templates'][template]['dest']}/${componentName}`,
+			componentName);
+
+
 			vscode.window.showInformationMessage(`Created *${componentName} ${template}* successfully! 👋`);
 	}
 	else {
@@ -50,9 +53,19 @@ const createChosenBox = async (config, template) => {
  */
 function activate(context) {
 
-	let createBox = vscode.commands.registerCommand('boxed-components.createBox', () => {
-		
+	const createBox = vscode.commands.registerCommand('boxed-components.createBox', () => {
+
+		const configPath = vscode.workspace.workspaceFolders.length ? `${vscode.workspace.workspaceFolders[0].uri.fsPath}/boxedConfig.json` : null;	
 		delete require.cache[configPath];
+		const config = require(configPath);
+
+
+		if (!configPath)
+		{
+			vscode.window.showErrorMessage(`Open a project in your workspace first.`);
+			return false;
+		}
+
 
 		if (!fs.existsSync(configPath)) {
 			fs.writeFileSync(configPath, JSON.stringify(defaultConfig));
@@ -61,7 +74,7 @@ function activate(context) {
 			return false;
 		}
 
-		const config = require(configPath);
+		
 
 		const quickPick = vscode.window.createQuickPick();
 		quickPick.title = 'Select one of your templates';
