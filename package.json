@@ -20,7 +20,17 @@
 				"command": "boxed-components.createBox",
 				"title": "Boxed Components [/] Create boxed component"
 			}
-		]
+		],
+		"configuration": {
+			"title": "Boxed Components",
+			"properties": {
+			  "boxed-components.useTemplates": {
+				"type": "object",
+				"default": {},
+				"description": "Some description here"
+			  }
+			}
+		  }
 	},
 	"scripts": {
 		"lint": "eslint .",
