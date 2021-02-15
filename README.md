@@ -59,7 +59,15 @@ The same can be done to lowercase with `_l_box_l_` to generate things like cardI
 
 ## Release Notes
 
-### 1.0.0
+### 0.0.3
 
-Initial release of Boxed Components
+- Add case support
 
+### 0.0.2
+
+- Fix race conditions 
+- Experimental multiroot support
+
+### 0.0.1
+
+- Initial release
