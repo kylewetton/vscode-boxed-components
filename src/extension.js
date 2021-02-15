@@ -5,18 +5,16 @@ const fs = require('fs');
 const utils = require('./utils');
 const path = require('path');
 
-const createChosenBox = async (config, template) => {
+const createChosenBox = async (config, template, projectRoot) => {
 	/**
 	 * TODO: This appears to only point to the first folder in the workspace.
 	 * Personally never really have more than one project open in one workspace at a time
 	 * */ 
-	const projectRoot = vscode.workspace.workspaceFolders[0].uri.fsPath;
 	const destURI = `${projectRoot}/${config[template]['dest']}`;
 	const srcURI = `${projectRoot}/${config[template]['src']}`;
 
 	const componentName = await vscode.window.showInputBox({
-		placeholder: 'Name your component...',
-		prompt: 'Box it up',
+		placeHolder: 'Name your component...',
 		validateInput: text => {
 
 			if (!text) {
@@ -40,16 +38,38 @@ const createChosenBox = async (config, template) => {
 			return false;
 		}
 
-		utils.copyDir(srcURI,
-			`${destURI}/${componentName}`,
-			componentName).then(() => {
-				utils.rename(`${destURI}/${componentName}`,
-				componentName);
-			});
-			vscode.window.showInformationMessage(`Created ${componentName} ${template} successfully! 👋`);
+		utils.copyDir(srcURI,`${destURI}/${componentName}`,componentName);
+		vscode.window.showInformationMessage(`Created ${componentName} ${template} successfully! 👋`);
 	}
 	else {
+	}
+}
+
+const quickPickTemplate = (templates, projectRoot) => {
+
+	if (!templates) {
 		vscode.window.showErrorMessage(`Couldn't find any templates in settings.json`);
+		return false;
+	}
+	
+	const quickPick = vscode.window.createQuickPick();
+		quickPick.placeholder = 'Select the template to copy from...';
+		quickPick.items = Object.keys(templates).map(label => ({ label }));
+		quickPick.onDidChangeSelection(selection => {
+			if (selection[0]) {
+				createChosenBox(templates, selection[0].label, projectRoot);
+			}
+		});
+		quickPick.onDidHide(() => quickPick.dispose());
+		quickPick.show();
+}
+
+const quickPickWorkspace =  async () => {
+	const folder = await vscode.window.showWorkspaceFolderPick({ placeHolder: 'Warning: Multi-root support has known bugs...' });
+	if (folder) {
+		const configuration = vscode.workspace.getConfiguration('', folder.uri);
+		const templates = configuration.get('boxed-components.useTemplates');
+		quickPickTemplate(templates, folder.uri.fsPath);
 	}
 }
 
@@ -59,18 +79,17 @@ const createChosenBox = async (config, template) => {
 function activate(context) {
 
 	const createBox = vscode.commands.registerCommand('boxed-components.createBox', () => {
-
-		const quickPick = vscode.window.createQuickPick();
-		quickPick.title = 'Select one of your templates';
-		quickPick.items = Object.keys(vscode.workspace.getConfiguration().get('boxed-components.useTemplates')).map(label => ({ label }));
-		quickPick.onDidChangeSelection(selection => {
-			if (selection[0]) {
-				createChosenBox(vscode.workspace.getConfiguration().get('boxed-components.useTemplates'), selection[0].label);
-			}
-		});
-		quickPick.onDidHide(() => quickPick.dispose());
-		quickPick.show();
-
+		
+		if (!vscode.workspace.workspaceFolders.length) {
+			vscode.workspace.showErrorMessage(`Box Components can't any projects in this workspace.`);
+		}
+		if (vscode.workspace.workspaceFolders.length > 1) {
+			quickPickWorkspace();
+		}
+		else {
+			quickPickTemplate(vscode.workspace.getConfiguration('boxed-components').get('useTemplates'), vscode.workspace.workspaceFolders[0].uri.fsPath);
+		}
+		
 	});
 
 	context.subscriptions.push(createBox);

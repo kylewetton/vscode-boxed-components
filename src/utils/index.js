@@ -4,23 +4,24 @@ const shell = require('shelljs');
 
 
 const findReplace = (file, componentName) => {
-    const newPath = /__box__/g.test(file) ? file.replace(/__box__/g, componentName) : file;
-	
-	if (file !== newPath)
-		fs.renameSync(file, newPath);
-
-	fs.readFile(newPath, 'utf8', (err, data) => {
+	fs.readFile(file, 'utf-8', (err, data) => {
+		// console.log('Data: ', data);
 		var result = data.replace(/__box__/g, componentName);
-		fs.rename(file, newPath, () => {
-			fs.writeFileSync(newPath, result, 'utf8');
-		});
+		console.log(!data || !result ? `Failed: ${componentName} ${file}` : `Success: ${componentName} ${file}`);
+		// console.log('Parsed: ', result);
+		fs.writeFile(file, result, () => {
+			const newPath = file.replace(/__box__/g, componentName);
+			// console.log(`Attempt to rename to ${newPath}`);
+			fs.renameSync(file, newPath);
+		});	
 	});
 }
 
-const copy = function(src, dest) {
-	var oldFile = fs.createReadStream(src);
-	var newFile = fs.createWriteStream(dest);
-	oldFile.pipe(newFile);
+const copy = function(src, dest, name) {
+	fs.copyFile(src, dest, (err) => {
+		if (err) throw err;
+		findReplace(dest, name);
+	});
 };
 
 const copyDir = function(src, dest, name) {
@@ -37,10 +38,10 @@ const copyDir = function(src, dest, name) {
 				fs.symlinkSync(symlink, path.join(dest, files[i]));
 			}
         	else {
-				copy(path.join(src, files[i]), path.join(dest, files[i]));
+				copy(path.join(src, files[i]), path.join(dest, files[i]), name);
 			}
 		}
-		res(true);
+		res('Resolved copy successfully...');
 	});
 };
 
