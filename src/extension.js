@@ -39,16 +39,13 @@ const createChosenBox = async (config, template) => {
 			vscode.window.showErrorMessage(`Something went wrong here, the component name you entered didn't reach me.`);
 			return false;
 		}
-			
+
 		utils.copyDir(srcURI,
 			`${destURI}/${componentName}`,
 			componentName).then(() => {
 				utils.rename(`${destURI}/${componentName}`,
 				componentName);
 			});
-
-
-
 			vscode.window.showInformationMessage(`Created ${componentName} ${template} successfully! 👋`);
 	}
 	else {

@@ -4,16 +4,17 @@ const shell = require('shelljs');
 
 
 const findReplace = (file, componentName) => {
-    const newPath = file.replace(/__box__/g, componentName);
-    fs.renameSync(file, newPath);
-    fs.readFile(newPath, 'utf8', function (err,data) {
-        if (err) {
-            return console.log(err);
-        }
-        var result = data.replace(/__box__/g, componentName);
+    const newPath = /__box__/g.test(file) ? file.replace(/__box__/g, componentName) : file;
+	
+	if (file !== newPath)
+		fs.renameSync(file, newPath);
 
-        fs.writeFileSync(newPath, result, 'utf8');
-    });
+	fs.readFile(newPath, 'utf8', (err, data) => {
+		var result = data.replace(/__box__/g, componentName);
+		fs.rename(file, newPath, () => {
+			fs.writeFileSync(newPath, result, 'utf8');
+		});
+	});
 }
 
 const copy = function(src, dest) {
