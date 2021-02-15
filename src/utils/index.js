@@ -3,15 +3,20 @@ const path = require('path');
 const shell = require('shelljs');
 
 
+const regexParse = (text, name) => {
+	var std = text.replace(/__box__/g, name)
+	var up = std.replace(/_u_box_u_/g, name.toUpperCase())
+	var res = up.replace(/_l_box_l_/g, name.toLowerCase());
+	return res;
+}
+
 const findReplace = (file, componentName) => {
 	fs.readFile(file, 'utf-8', (err, data) => {
-		// console.log('Data: ', data);
-		var result = data.replace(/__box__/g, componentName);
+		
+		var result = regexParse(data, componentName);
 		console.log(!data || !result ? `Failed: ${componentName} ${file}` : `Success: ${componentName} ${file}`);
-		// console.log('Parsed: ', result);
 		fs.writeFile(file, result, () => {
-			const newPath = file.replace(/__box__/g, componentName);
-			// console.log(`Attempt to rename to ${newPath}`);
+			const newPath = regexParse(file, componentName);
 			fs.renameSync(file, newPath);
 		});	
 	});

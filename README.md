@@ -28,6 +28,10 @@ and the `./types` folder that is being imported looks like this
 
 The \_\_box\_\_ string will work everywhere, for instance `__box__.scss`.
 
+If you need to convert the name to UPPERCASE, use `_u_box_u_` which can be helpful in constants, for intance CARD_ADD_ACTION.
+
+The same can be done to lowercase with `_l_box_l_` to generate things like cardIsActive.
+
 3. In order to spawn a new component, you will need some .vscode settings. Inside `.vscode/settings.json`, you'd create your setting like so
 
 :
