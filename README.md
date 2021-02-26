@@ -59,6 +59,10 @@ The same can be done to lowercase with `_l_box_l_` to generate things like cardI
 
 ## Release Notes
 
+### 1.0.0
+
+- All initial features complete and working okay
+
 ### 0.0.3
 
 - Add case support
