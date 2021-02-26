@@ -89,7 +89,6 @@ function activate(context) {
 		const folder = await vscode.window.showWorkspaceFolderPick({ placeHolder: 'Select the root folder...' });
 		if (folder) {
 			const configuration = vscode.workspace.getConfiguration('', folder.uri);
-			console.log(configuration);
 			const templates = configuration.get('boxed-components.useTemplates');
 			quickPickTemplate(templates, folder.uri.fsPath);
 		}
