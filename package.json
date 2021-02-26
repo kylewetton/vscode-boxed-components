@@ -28,7 +28,8 @@
 			  "boxed-components.useTemplates": {
 				"type": "object",
 				"default": {},
-				"description": "User defined templates for Boxed Components"
+				"description": "User defined templates for Boxed Components",
+				"scope" : "resource"
 			  }
 			}
 		  }
