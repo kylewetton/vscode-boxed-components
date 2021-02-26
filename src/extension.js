@@ -3,7 +3,6 @@
 const vscode = require('vscode');
 const fs = require('fs');
 const utils = require('./utils');
-const path = require('path');
 
 /**
  * @param {vscode.ExtensionContext} context
