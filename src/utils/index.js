@@ -2,10 +2,16 @@ const fs = require('fs');
 const path = require('path');
 const shell = require('shelljs');
 
+const _makeTitleCase = (text) => {
+	const arr = text.split('');
+	arr[0] = arr[0].toUpperCase();
+	return arr.join('');
+}
 
 const regexParse = (text, name) => {
-	var std = text.replace(/__box__/g, name)
-	var up = std.replace(/_u_box_u_/g, name.toUpperCase())
+	var std = text.replace(/__box__/g, name);
+	var title = std.replace(/_u_box__/g, _makeTitleCase(name));
+	var up = title.replace(/_u_box_u_/g, name.toUpperCase());
 	var res = up.replace(/_l_box_l_/g, name.toLowerCase());
 	return res;
 }
@@ -50,6 +56,14 @@ const copyDir = function(src, dest, name) {
 	});
 };
 
+const copyFile = function(src, dest, name) {
+	return new Promise((res, rej) => {
+		shell.mkdir('-p', dest);
+		copy(src, path.join(dest, src.split('/').pop()), name);
+		res('Resolved copy successfully...');
+	});
+}
+
 const rename = function(src, name) {
 	var files = fs.readdirSync(src);
 	for(var i = 0; i < files.length; i++) {
@@ -65,5 +79,6 @@ const rename = function(src, name) {
 
 module.exports = {
     copyDir,
+	copyFile,
 	rename
 }

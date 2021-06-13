@@ -32,6 +32,8 @@ If you need to convert the name to UPPERCASE, use `_u_box_u_` which can be helpf
 
 The same can be done to lowercase with `_l_box_l_` to generate things like cardIsActive.
 
+Finally, you can also convert it to title case with `_u_box__`, handy for situations like `export type Card`.
+
 3. In order to spawn a new component, you will need some .vscode settings. Inside `.vscode/settings.json`, you'd create your setting like so
 
 :
@@ -48,7 +50,11 @@ The same can be done to lowercase with `_l_box_l_` to generate things like cardI
                 "dest" : "src/store/features"
             },
             "page" : {
-                "src" "templates/html",
+                "src": "templates/html",
+                "dest" : "src/pages"
+            },
+            "justAFile" : {
+                "src": "templates/__box__.html",
                 "dest" : "src/pages"
             }
         }

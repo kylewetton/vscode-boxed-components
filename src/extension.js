@@ -21,6 +21,8 @@ function activate(context) {
 	
 		const destURI = `${projectRoot}/${config[template]['dest']}`;
 		const srcURI = `${projectRoot}/${config[template]['src']}`;
+		const isDirectory = fs.existsSync(srcURI) && fs.lstatSync(srcURI).isDirectory();
+		const isFile = fs.existsSync(srcURI) && fs.lstatSync(srcURI).isFile();
 	
 		const componentName = await vscode.window.showInputBox({
 			placeHolder: 'Name your component...',
@@ -40,15 +42,19 @@ function activate(context) {
 	
 		if (config)
 		{
-	
 			if (!componentName)
 			{
 				vscode.window.showErrorMessage(`Something went wrong here, the component name you entered didn't reach me.`);
 				return false;
 			}
-	
-			utils.copyDir(srcURI,`${destURI}/${componentName}`,componentName);
-			vscode.window.showInformationMessage(`Created ${componentName} ${template} successfully! 👋`);
+
+			if (isDirectory) {
+				utils.copyDir(srcURI,`${destURI}/${componentName}`, componentName);
+			} else if (isFile) {
+				utils.copyFile(srcURI,`${destURI}`, componentName);
+			}
+			
+			vscode.window.showInformationMessage(`Created ${componentName} ${template} successfully! 👋 👋 👋`);
 		}
 		else {
 		}
@@ -86,11 +92,13 @@ function activate(context) {
 	
 	const quickPickWorkspace =  async () => {
 		const folder = await vscode.window.showWorkspaceFolderPick({ placeHolder: 'Select the root folder...' });
-		if (folder) {
-			const configuration = vscode.workspace.getConfiguration('', folder.uri);
-			const templates = configuration.get('boxed-components.useTemplates');
-			quickPickTemplate(templates, folder.uri.fsPath);
-		}
+
+		if (!folder) 
+			return false;
+		
+		const configuration = vscode.workspace.getConfiguration('', folder.uri);
+		const templates = configuration.get('boxed-components.useTemplates');
+		quickPickTemplate(templates, folder.uri.fsPath);
 	}
 
 	/**
@@ -100,7 +108,7 @@ function activate(context) {
 	const createBox = vscode.commands.registerCommand('boxed-components.createBox', () => {
 		
 		if (!vscode.workspace.workspaceFolders.length) {
-			vscode.workspace.showErrorMessage(`Box Components can't any projects in this workspace.`);
+			vscode.workspace.showErrorMessage(`Box Components can't find any projects in this workspace.`);
 		}
 		if (vscode.workspace.workspaceFolders.length > 1) {
 			quickPickWorkspace();
